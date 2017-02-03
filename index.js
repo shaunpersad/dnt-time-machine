@@ -50,7 +50,7 @@ app.post('/warn', function(req, res) {
                 token: SLACK_TOKEN,
                 channel: SLACK_GENERAL_CHANNEL,
                 as_user: true,
-                text: '<!everyone> Warning! if you have not submitted your timesheets, please do so now: https://domandtom.harvestapp.com/time/week'
+                text: "<!everyone> Warning! If you have not submitted your timesheets, please do so now: <https://domandtom.harvestapp.com/time/week>\nI'll be back."
             },
             baseUrl: SLACK_API_URL,
             json: true
@@ -118,7 +118,7 @@ app.post('/destroy', function (req, res) {
             return res.send(err.message || 'Something went horribly wrong.');
         }
 
-        const message = `Everyone, please publicly shame the following people for not submitting their timesheets: ${delinquents.join(', ')}`;
+        const message = `Everyone, please publicly shame the following people for not submitting their timesheets: ${delinquents.join(', ')}\nHasta la vista, baby.:sunglasses: :tom:`;
 
         const options = {
             url: 'chat.postMessage',
