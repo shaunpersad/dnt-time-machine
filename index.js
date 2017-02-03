@@ -50,7 +50,7 @@ app.post('/warn', function(req, res) {
                 token: SLACK_TOKEN,
                 channel: SLACK_GENERAL_CHANNEL,
                 as_user: true,
-                text: 'Warning! if you have not submitted your timesheets, please do so now: https://domandtom.harvestapp.com/time/week'
+                text: '<!everyone> Warning! if you have not submitted your timesheets, please do so now: https://domandtom.harvestapp.com/time/week'
             },
             baseUrl: SLACK_API_URL,
             json: true
