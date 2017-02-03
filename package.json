@@ -1,0 +1,30 @@
+{
+  "name": "dnt-time-machine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaunpersad/dnt-time-machine.git"
+  },
+  "author": "Shaun Persad <shaunpersad@gmail.com> (http://inspirationjs.io)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shaunpersad/dnt-time-machine/issues"
+  },
+  "homepage": "https://github.com/shaunpersad/dnt-time-machine#readme",
+  "dependencies": {
+    "async": "^2.1.4",
+    "body-parser": "^1.16.0",
+    "express": "^4.14.1",
+    "lodash": "^4.17.4",
+    "moment": "^2.17.1",
+    "request": "^2.79.0"
+  },
+  "engines": {
+    "node": "4.0.0"
+  }
+}
