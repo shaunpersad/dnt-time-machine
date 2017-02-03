@@ -68,7 +68,7 @@ app.post('/warn', function(req, res) {
     ], (err) => {
 
         if (err) {
-            return res.send('An error occurred. Sorry.');
+            return res.send(err.message || 'Something went horribly wrong.');
         }
 
         res.send('Warning sent.');
