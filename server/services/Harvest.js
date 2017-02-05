@@ -321,7 +321,7 @@ class Harvest {
 
         let hours = 0;
 
-        this.getWeeklyTimesheets(requestOptions, (day, timesheets) => {
+        this.getWeeklyTimesheets(requestOptions, (day, timesheets, callback) => {
 
             /**
              * Add up the hours and add it to the total.
@@ -331,6 +331,8 @@ class Harvest {
                 return sum + _.get(timesheet, 'hours', 0);
             }, 0);
 
+            callback();
+            
         }, (err) => {
             callback(err, hours);
         });
