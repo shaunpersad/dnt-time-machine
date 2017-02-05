@@ -525,6 +525,7 @@ class Harvest {
                     request(options, (err, response, body) => {
 
                         if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
+                            console.log('body', body);
                             err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
                         }
 
