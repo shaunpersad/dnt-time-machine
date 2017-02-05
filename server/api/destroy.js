@@ -39,11 +39,10 @@ function destroy(req, res) {
         },
         (harvestDelinquents, slackUsers, next) => {
 
-            const message = 'You have not submitted 40 hours this week! Please do so now: https://domandtom.harvestapp.com/time/week';
-
             async.each(harvestDelinquents, (harvestDelinquent, callback) => {
 
                 const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
+                const message = `${harvestDelinquent.getName()}, you have not submitted 40 hours this week! Please do so now: https://domandtom.harvestapp.com/time/week`;
 
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
@@ -69,7 +68,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}\nHasta la vista, baby.:sunglasses: :tom:`;
+            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}\n\nHasta la vista, baby.\n:tom:`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 

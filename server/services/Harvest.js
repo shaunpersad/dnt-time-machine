@@ -76,11 +76,8 @@ class HarvestUser {
         const currentWeek = {};
         let numCreated = 0;
 
-        console.log(lastWeekMonday.format('YYYY-MM-DD'), today.format('YYYY-MM-DD'));
-
         this.harvest.getTimesheetsForDateRange(requestOptions, (day, timesheets, callback) => {
 
-            console.log('day:', day.format('YYYY-MM-DD'));
             const dayIndex = day.day();
 
             if (!currentWeek[dayIndex]) {
@@ -88,7 +85,6 @@ class HarvestUser {
                 return callback();
             }
 
-            console.log('is last week');
             const currentWeekTimesheets = currentWeek[dayIndex];
 
             async.each(timesheets, (lastWeekTimesheet, callback) => {
@@ -113,11 +109,8 @@ class HarvestUser {
                 });
 
                 if (found) {
-                    console.log('Found', found.project, 'on', found.spent_at);
                     return callback();
                 }
-
-                console.log('Did not find', lastWeekTimesheet.project, 'from', day.format('YYYY-M-D'), 'this week. Creating.');
 
                 this.createTimesheet(day.clone().add(1, 'week'), lastWeekProjectId, lastWeekTaskId, lastWeekHours, (err) => {
 

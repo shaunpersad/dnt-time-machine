@@ -14,21 +14,21 @@ const appUrl = require('./services/appUrl');
 const Harvest = require('./services/Harvest');
 const Slack = require('./services/Slack');
 
-const APP_URL = process.env.APP_URL || 'https://dnt-time-bot.herokuapp.com/';
-const COOKIE_SECRET = process.env.COOKIE_SECRET || 'skdfjlksdjlfkjerwetetru23536';
+const APP_URL = process.env.APP_URL;
+const COOKIE_SECRET = process.env.COOKIE_SECRET;
 
-const SLACK_API_URL = process.env.SLACK_API_URL || 'https://slack.com/api/';
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN || 'xoxb-136472376226-4E83UZc8WqLujz2wQdit9fB2';
-const SLACK_GENERAL_CHANNEL = process.env.SLACK_GENERAL_CHANNEL || '@shaun.persad';
+const SLACK_API_URL = process.env.SLACK_API_URL;
+const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+const SLACK_GENERAL_CHANNEL = process.env.SLACK_GENERAL_CHANNEL;
 
-const HARVEST_API_URL = process.env.HARVEST_API_URL || 'https://domandtom.harvestapp.com';
-const HARVEST_CLIENT_ID = process.env.HARVEST_CLIENT_ID || 'jHkAoTeOe6rC0YyoII6Z0A';
-const HARVEST_CLIENT_SECRET = process.env.HARVEST_CLIENT_SECRET || 'Tm555gCxUzWyDITCh65Kz0B-8RFyaiW-nCnp2CT8nTBpK7OLiVXVHRZTy_8GxXGkGAB1rnNM0kVcOCwUoa4meA';
-const HARVEST_EMAIL_DOMAIN = process.env.HARVEST_EMAIL_DOMAIN || 'domandtom.com';
+const HARVEST_API_URL = process.env.HARVEST_API_URL;
+const HARVEST_CLIENT_ID = process.env.HARVEST_CLIENT_ID;
+const HARVEST_CLIENT_SECRET = process.env.HARVEST_CLIENT_SECRET;
+const HARVEST_EMAIL_DOMAIN = process.env.HARVEST_EMAIL_DOMAIN;
 
-const WAKATIME_API_URL = process.env.WAKATIME_API_URL || '';
-const WAKATIME_CLIENT_ID = process.env.WAKATIME_CLIENT_ID || '';
-const WAKATIME_CLIENT_SECRET = process.env.WAKATIME_CLIENT_SECRET || '';
+const WAKATIME_API_URL = process.env.WAKATIME_API_URL;
+const WAKATIME_CLIENT_ID = process.env.WAKATIME_CLIENT_ID;
+const WAKATIME_CLIENT_SECRET = process.env.WAKATIME_CLIENT_SECRET;
 
 const app = express();
 
@@ -52,8 +52,14 @@ app.post('/warn', require('./api/warn'));
  */
 app.post('/destroy', require('./api/destroy'));
 
+/**
+ * Copy timesheets from the week before to this week.
+ */
 app.get('/copy', require('./api/copy'));
 
+/**
+ * Harvest OAUTH callback URL.
+ */
 app.get('/harvest-auth', require('./api/harvestAuth'));
 
 /**

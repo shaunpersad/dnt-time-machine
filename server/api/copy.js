@@ -5,9 +5,6 @@ const url = require('url');
 
 function copy(req, res) {
 
-    console.log('request', req.query);
-    console.log('request num', Math.random());
-
     const harvestAccessToken = _.get(req, 'query.harvest_access_token', _.get(req, 'cookies.harvest_access_token', ''));
     const harvestRefreshToken = _.get(req, 'cookies.harvest_refresh_token', '');
 
@@ -18,25 +15,26 @@ function copy(req, res) {
 
     async.waterfall([
         (next) => {
-            harvest.getUser(harvestAccessToken, harvestRefreshToken, next);
+            harvest.getUser(harvestAccessToken, harvestRefreshToken, (err) => {
+
+                if (err) {
+
+                }
+            });
         },
         (harvestUser, next) => {
 
             res.cookie('harvest_access_token', harvestUser.accessToken || '');
             res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
 
-            harvestUser.getHoursForLatestWeek(next);
+            harvestUser.copyPreviousWeekIntoLatest(next);
         }
     ], (err, numCreated) => {
 
         if (err) {
-            console.log('Error', err);
-
             const authUrl = req.app.locals.services.appUrl('harvest-auth');
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
-
-        console.log('created', numCreated, 'timesheets');
 
         res.redirect(url.resolve(harvest.apiUrl, '/time/week'));
     });
