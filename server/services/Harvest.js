@@ -252,7 +252,28 @@ class Harvest {
         return `${authorizeUrl}?${query}`;
     }
 
-    getWeeklyTimesheets(requestOptions, forEachTimesheet, callback) {
+    getHours(requestOptions, callback) {
+
+        let hours = 0;
+
+        this.getTimesheetsForLastWeek(requestOptions, (day, timesheets, callback) => {
+
+            /**
+             * Add up the hours and add it to the total.
+             *
+             */
+            hours+= _.reduce(timesheets, (sum, timesheet) => {
+                return sum + _.get(timesheet, 'hours', 0);
+            }, 0);
+
+            callback();
+
+        }, (err) => {
+            callback(err, hours);
+        });
+    }
+
+    getTimesheetsForLastWeek(requestOptions, forEachTimesheet, callback) {
 
         const today = moment();
         const monday = moment();
@@ -271,6 +292,13 @@ class Harvest {
             monday.subtract(1, 'day');
         }
 
+        this.getTimesheetsForDateRange(requestOptions, forEachTimesheet, monday, today, callback);
+    }
+
+    getTimesheetsForDateRange(requestOptions, forEachTimesheet, earliest, latest, callback) {
+
+        const day = latest.clone();
+
         async.whilst(
             /**
              * Start from friday, and move up to monday.
@@ -278,7 +306,7 @@ class Harvest {
              * @returns {boolean}
              */
             () => {
-                return today.isSameOrAfter(monday, 'date');
+                return day.isSameOrAfter(earliest, 'date');
             },
             /**
              * Get the timesheets for a  user for a particular day.
@@ -288,7 +316,7 @@ class Harvest {
             (callback) => {
 
                 const options = _.defaultsDeep({
-                    url: `daily/${today.dayOfYear()}/${today.year()}`,
+                    url: `daily/${day.dayOfYear()}/${day.year()}`,
                     baseUrl: this.apiUrl,
                     qs: {
                         slim: 1
@@ -306,8 +334,8 @@ class Harvest {
                         return callback(err);
                     }
 
-                    const dayClone = today.clone();
-                    today.subtract(1, 'day');
+                    const dayClone = day.clone();
+                    day.subtract(1, 'day');
 
                     forEachTimesheet(dayClone, _.get(body, 'day_entries', []), callback);
                 });
@@ -315,27 +343,6 @@ class Harvest {
             },
             callback
         );
-    }
-
-    getHours(requestOptions, callback) {
-
-        let hours = 0;
-
-        this.getWeeklyTimesheets(requestOptions, (day, timesheets, callback) => {
-
-            /**
-             * Add up the hours and add it to the total.
-             *
-             */
-            hours+= _.reduce(timesheets, (sum, timesheet) => {
-                return sum + _.get(timesheet, 'hours', 0);
-            }, 0);
-
-            callback();
-            
-        }, (err) => {
-            callback(err, hours);
-        });
     }
 }
 
