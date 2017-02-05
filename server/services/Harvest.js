@@ -159,16 +159,17 @@ class HarvestUser {
             hours: hours
         });
 
-        this.harvest.throttle(() => {
-            request(options, (err, response, timesheet) => {
-
-                if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
-                    err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
-                }
-
-                callback(err, timesheet);
-            });
-        });
+        callback();
+        // this.harvest.throttle(() => {
+        //     request(options, (err, response, timesheet) => {
+        //
+        //         if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
+        //             err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
+        //         }
+        //
+        //         callback(err, timesheet);
+        //     });
+        // });
     }
 }
 
