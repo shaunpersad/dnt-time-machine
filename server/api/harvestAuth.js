@@ -20,8 +20,8 @@ function harvestAuth(req, res) {
             return res.send('Authorization failed!');
         }
 
-        res.cookie('harvest_access_token', _.get(tokens, 'access_token'));
-        res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token'));
+        res.cookie('harvest_access_token', _.get(tokens, 'access_token', ''));
+        res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token', ''));
 
         res.redirect(req.app.locals.services.appUrl(state));
     });

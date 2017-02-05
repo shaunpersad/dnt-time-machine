@@ -20,8 +20,8 @@ function copy(req, res) {
         (harvestUser, next) => {
 
         console.log(harvestUser);
-            res.cookie('harvest_access_token', harvestUser.accessToken);
-            res.cookie('harvest_refresh_token', harvestUser.refreshToken);
+            res.cookie('harvest_access_token', harvestUser.accessToken || '');
+            res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
 
             harvestUser.getHours(next);
         }
