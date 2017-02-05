@@ -290,14 +290,14 @@ class Harvest {
              */
             (callback) => {
 
-                const options = _.defaultsDeep(requestOptions, {
+                const options = _.defaultsDeep({
                     url: `daily/${today.dayOfYear()}/${today.year()}`,
                     baseUrl: this.apiUrl,
                     qs: {
                         slim: 1
                     },
                     json: true
-                });
+                }, requestOptions);
 
                 console.log(options);
 
