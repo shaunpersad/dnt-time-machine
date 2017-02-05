@@ -308,6 +308,8 @@ class Harvest {
                     }
 
                     const timesheetsForDay = _.get(body, 'day_entries', []);
+
+                    console.log('timesheetsForDay', timesheetsForDay);
                     /**
                      * Add up the hours and add it to the total.
                      *

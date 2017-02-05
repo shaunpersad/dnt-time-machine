@@ -1,6 +1,7 @@
 "use strict";
 const _ = require('lodash');
 const async = require('async');
+const url = require('url');
 
 function copy(req, res) {
 
@@ -31,8 +32,8 @@ function copy(req, res) {
         }
 
         console.log('hours', hours);
-        
-        res.redirect(harvest.apiUrl);
+
+        res.redirect(url.resolve(harvest.apiUrl, '/time/week'));
     });
 
 }
