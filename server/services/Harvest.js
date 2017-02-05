@@ -38,11 +38,137 @@ class HarvestUser {
      */
     getHoursForLatestWeek(callback) {
 
-        this.harvest.getHoursForLatestWeek({
+        const requestOptions = {
             qs: {
                 access_token: this.accessToken
             }
-        }, callback);
+        };
+
+        this.harvest.getHoursForLatestWeek(requestOptions, callback);
+    }
+
+    copyPreviousWeekIntoLatest(callback) {
+
+        const requestOptions = {
+            qs: {
+                access_token: this.accessToken
+            }
+        };
+        const today = moment();
+        const lastWeekMonday = moment();
+
+        const todayId = today.day();
+
+        if (todayId === 1) { // its monday
+            today.subtract(1, 'day'); //
+        }
+        /**
+         * Start from last monday.
+         */
+        while(lastWeekMonday.day() !== 1) {
+            lastWeekMonday.subtract(1, 'day');
+        }
+        /**
+         * Go back one more week.
+         */
+        lastWeekMonday.subtract(1, 'week');
+
+        const currentWeek = {};
+        let numCreated = 0;
+
+        console.log(lastWeekMonday.format('YYYY-MM-DD'), today.format('YYYY-MM-DD'));
+
+        this.getTimesheetsForDateRange(requestOptions, (day, timesheets, callback) => {
+
+            const dayIndex = day.day();
+
+            if (!currentWeek[dayIndex]) {
+                currentWeek[dayIndex] = timesheets;
+                return callback();
+            }
+
+            const currentWeekTimesheets = currentWeek[dayIndex];
+
+            async.each(timesheets, (lastWeekTimesheet, callback) => {
+
+                const lastWeekProjectId = _.get(lastWeekTimesheet, 'project_id');
+                const lastWeekTaskId = _.get(lastWeekTimesheet, 'task_id');
+                const lastWeekHours = _.get(lastWeekTimesheet, 'hours', 0);
+
+                if (!(lastWeekProjectId && lastWeekTaskId)) {
+                    return callback();
+                }
+
+                const found = _.find(currentWeekTimesheets, (currentWeekTimesheet) => {
+
+                    const currentWeekProjectId = _.get(currentWeekTimesheet, 'project_id');
+                    const currentWeekTaskId = _.get(currentWeekTimesheet, 'task_id');
+
+                    if (!(currentWeekProjectId && currentWeekTaskId)) {
+                        return false;
+                    }
+                    return (lastWeekProjectId === currentWeekProjectId) && (lastWeekTaskId === currentWeekTaskId);
+                });
+
+                if (found) {
+                    console.log('Found', found.project, 'on', day.spent_at);
+                    return callback();
+                }
+
+                console.log('Did not find', lastWeekTimesheet.project, 'from', day.format('YYYY-M-D'), 'this week. Creating.');
+
+                this.createTimesheet(day, lastWeekProjectId, lastWeekTaskId, lastWeekHours, (err) => {
+
+                    if (!err) {
+                        numCreated++;
+                    }
+
+                    callback(err);
+                });
+
+            }, callback);
+
+        }, lastWeekMonday, today, (err) => {
+
+            callback(err, numCreated);
+        });
+    }
+
+    createTimesheet(day, projectId, taskId, hours, callback) {
+
+        const options = {
+            url: '/daily/add',
+            baseUrl: this.harvest.apiUrl,
+            qs: {
+                access_token: this.accessToken
+            },
+            method: 'POST',
+            form: {
+                spent_at: day.format('YYYY-M-D'),
+                project_id: projectId,
+                task_id: taskId,
+                hours: hours
+            },
+            json: true
+        };
+
+        console.log({
+            spent_at: day.format('YYYY-M-D'),
+            project_id: projectId,
+            task_id: taskId,
+            hours: hours
+        });
+
+        this.harvest.throttle(() => {
+            request(options, (err, response, timesheet) => {
+
+                if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
+                    err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
+                }
+
+                callback(err, timesheet);
+            });
+        });
     }
 }
 
