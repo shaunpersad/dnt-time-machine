@@ -83,6 +83,10 @@ class HarvestAdmin {
 
         request(options, (err, response, usersWrapper) => {
 
+            if (!err && usersWrapper && _.get(usersWrapper, 'error')) {
+                err = new Error(_.get(usersWrapper, 'error_description', 'Harvest API error.'));
+            }
+
             callback(err, _.map(usersWrapper || [], (userWrapper) => {
 
                 return _.get(userWrapper, 'user', {});
@@ -147,6 +151,10 @@ class Harvest {
 
         request(options, (err, response, body) => {
 
+            if (!err && body && _.get(body, 'error')) {
+                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+            }
+
             const email = _.get(body, 'user.email', '').toLowerCase();
             const isAdmin = _.get(body, 'user.admin', false);
 
@@ -176,13 +184,17 @@ class Harvest {
 
         request(options, (err, response, body) => {
 
+            if (!err && body && _.get(body, 'error')) {
+                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+            }
 
             if (err) {
-                console.log('did not get user', err.message);
 
                 return this.getAccessToken('refresh_token', refreshToken, (err, tokens) => {
 
-                    console.log('refresh token', tokens, err);
+                    if (!err && body && _.get(body, 'error')) {
+                        err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                    }
 
                     accessToken = _.get(tokens, 'access_token');
                     refreshToken = _.get(tokens, 'refresh_token');
@@ -190,8 +202,6 @@ class Harvest {
                     callback(err, new HarvestUser(accessToken, refreshToken, this));
                 });
             }
-
-            console.log('got user');
 
             callback(err, new HarvestUser(accessToken, refreshToken, this));
         });
@@ -219,8 +229,6 @@ class Harvest {
         if (payloadKey === 'code') {
             options.form.redirect_uri = redirectTo;
         }
-
-        console.log(options);
 
         request(options, (err, response, body) => {
 
@@ -251,16 +259,19 @@ class Harvest {
         const today = moment();
         const todayId = today.day();
 
-        if (todayId <= 1) { // its monday or sunday
-            today.subtract(2 + todayId, 'days'); // go back to last friday
+        if (todayId === 1) { // its monday
+            today.subtract(1, 'day'); //
         }
+        const monday = today.clone();
 
         /**
-         * Start at the beginning of the week.
+         * Start from last monday.
          *
          * @type {moment.Moment}
          */
-        const monday = today.clone().startOf('week').add(1, 'day');
+        while(monday.day() !== 1) {
+            monday.subtract(1, 'day');
+        }
 
         let hours = 0;
 
@@ -287,6 +298,10 @@ class Harvest {
                 });
 
                 request(options, (err, response, body) => {
+
+                    if (!err && body && _.get(body, 'error')) {
+                        err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
+                    }
 
                     if (err) {
                         return callback(err);

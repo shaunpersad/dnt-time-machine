@@ -7,7 +7,6 @@ function copy(req, res) {
     const harvestAccessToken = _.get(req, 'cookies.harvest_access_token', '');
     const harvestRefreshToken = _.get(req, 'cookies.harvest_refresh_token', '');
 
-    console.log('harvestAccessToken', harvestAccessToken);
     /**
      * @type {Harvest}
      */
@@ -19,7 +18,6 @@ function copy(req, res) {
         },
         (harvestUser, next) => {
 
-        console.log(harvestUser);
             res.cookie('harvest_access_token', harvestUser.accessToken || '');
             res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
 
@@ -32,8 +30,9 @@ function copy(req, res) {
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
 
-        res.json(hours);
-        //res.redirect(harvest.apiUrl);
+        console.log('hours', hours);
+        
+        res.redirect(harvest.apiUrl);
     });
 
 }

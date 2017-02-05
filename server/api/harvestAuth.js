@@ -6,9 +6,6 @@ function harvestAuth(req, res) {
     const code = _.get(req, 'query.code');
     const state = _.get(req, 'query.state', '');
 
-    console.log('code', code);
-    console.log('state', state);
-
     /**
      * @type {Harvest}
      */
@@ -21,13 +18,8 @@ function harvestAuth(req, res) {
             return res.send('Authorization failed!');
         }
 
-        console.log('tokens', tokens);
-
         res.cookie('harvest_access_token', _.get(tokens, 'access_token', ''));
         res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token', ''));
-
-        console.log('set harvest access token', _.get(tokens, 'access_token', ''));
-        console.log('redirecting to', req.app.locals.services.appUrl(state));
 
         res.redirect(req.app.locals.services.appUrl(state));
 
