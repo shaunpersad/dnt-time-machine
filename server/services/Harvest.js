@@ -21,6 +21,11 @@ class HarvestDelinquent {
 
 class HarvestUser {
 
+    /**
+     * @param {string} accessToken
+     * @param {string} refreshToken
+     * @param {Harvest} harvest
+     */
     constructor(accessToken, refreshToken, harvest) {
 
         this.accessToken = accessToken;
@@ -28,6 +33,9 @@ class HarvestUser {
         this.harvest = harvest;
     }
 
+    /**
+     * @param callback
+     */
     getHoursForLatestWeek(callback) {
 
         this.harvest.getHoursForLatestWeek({
@@ -192,6 +200,12 @@ class Harvest {
         });
     }
 
+    /**
+     *
+     * @param {string} accessToken
+     * @param {string} refreshToken
+     * @param callback
+     */
     getUser(accessToken, refreshToken, callback) {
 
         if (!accessToken || !refreshToken) {
@@ -235,6 +249,13 @@ class Harvest {
         });
     }
 
+    /**
+     *
+     * @param {string} grantType
+     * @param {string} payload
+     * @param {string} callback
+     * @param {string} [redirectTo]
+     */
     getAccessToken(grantType, payload, callback, redirectTo) {
 
         let payloadKey = 'refresh_token';
