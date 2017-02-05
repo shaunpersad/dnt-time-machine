@@ -41,9 +41,9 @@ function destroy(req, res) {
 
             const message = 'You have not submitted 40 hours this week! Please do so now: https://domandtom.harvestapp.com/time/week';
 
-            async.each(harvestDelinquents, (harvestUser, callback) => {
+            async.each(harvestDelinquents, (harvestDelinquent, callback) => {
 
-                const harvestUserEmail = _.get(harvestUser, 'email', '');
+                const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
 
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
