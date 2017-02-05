@@ -111,13 +111,13 @@ class HarvestUser {
                 });
 
                 if (found) {
-                    console.log('Found', found.project, 'on', day.spent_at);
+                    console.log('Found', found.project, 'on', found.spent_at);
                     return callback();
                 }
 
                 console.log('Did not find', lastWeekTimesheet.project, 'from', day.format('YYYY-M-D'), 'this week. Creating.');
 
-                this.createTimesheet(day, lastWeekProjectId, lastWeekTaskId, lastWeekHours, (err) => {
+                this.createTimesheet(day.clone().add(1, 'week'), lastWeekProjectId, lastWeekTaskId, lastWeekHours, (err) => {
 
                     if (!err) {
                         numCreated++;

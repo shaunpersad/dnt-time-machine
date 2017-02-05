@@ -24,7 +24,7 @@ function copy(req, res) {
 
             harvestUser.copyPreviousWeekIntoLatest(next);
         }
-    ], (err, hours) => {
+    ], (err, numCreated) => {
 
         if (err) {
             console.log('Error', err);
@@ -33,7 +33,7 @@ function copy(req, res) {
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
 
-        console.log('hours', hours);
+        console.log('created', numCreated, 'timesheets');
 
         res.redirect(url.resolve(harvest.apiUrl, '/time/week'));
     });
