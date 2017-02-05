@@ -255,14 +255,16 @@ class Harvest {
 
     getHours(requestOptions, callback) {
 
+        let hours = 0;
+
         const today = moment();
+        const monday = moment();
+
         const todayId = today.day();
 
         if (todayId === 1) { // its monday
             today.subtract(1, 'day'); //
         }
-        const monday = today.clone();
-
         /**
          * Start from last monday.
          *
@@ -271,8 +273,6 @@ class Harvest {
         while(monday.day() !== 1) {
             monday.subtract(1, 'day');
         }
-
-        let hours = 0;
 
         async.whilst(
             /**
