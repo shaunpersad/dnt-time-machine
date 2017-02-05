@@ -23,6 +23,9 @@ function harvestAuth(req, res) {
         res.cookie('harvest_access_token', _.get(tokens, 'access_token', ''));
         res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token', ''));
 
+        console.log('set harvest access token', _.get(tokens, 'access_token', ''));
+        console.log('redirecting to', req.app.locals.services.appUrl(state));
+
         res.redirect(req.app.locals.services.appUrl(state));
     });
 }
