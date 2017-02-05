@@ -15,11 +15,12 @@ function copy(req, res) {
 
     async.waterfall([
         (next) => {
-            harvest.getUser(harvestAccessToken, harvestRefreshToken, (err) => {
+            harvest.getUser(harvestAccessToken, harvestRefreshToken, (err, harvestUser) => {
 
                 if (err) {
-
+                    next('auth');
                 }
+                next(null, harvestUser);
             });
         },
         (harvestUser, next) => {
@@ -31,7 +32,7 @@ function copy(req, res) {
         }
     ], (err, numCreated) => {
 
-        if (err) {
+        if (err === 'auth') {
             const authUrl = req.app.locals.services.appUrl('harvest-auth');
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
