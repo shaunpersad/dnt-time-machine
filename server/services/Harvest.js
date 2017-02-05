@@ -153,14 +153,13 @@ class HarvestUser {
         };
 
         this.harvest.throttle(() => {
-            request(options, (err, response, timesheet) => {
+            request(options, (err, response, body) => {
 
-                if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
-                    console.log('response', timesheet);
-                    err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
-                callback(err, timesheet);
+                callback(err, body);
             });
         });
     }
@@ -231,13 +230,13 @@ class HarvestAdmin {
         };
 
         this.harvest.throttle(() => {
-            request(options, (err, response, usersWrapper) => {
+            request(options, (err, response, body) => {
 
-                if ((!err && usersWrapper && _.get(usersWrapper, 'error')) || response.statusCode != 200) {
-                    err = new Error(_.get(usersWrapper, 'error_description', 'Harvest API error.'));
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
-                callback(err, _.map(usersWrapper || [], (userWrapper) => {
+                callback(err, _.map(body || [], (userWrapper) => {
 
                     return _.get(userWrapper, 'user', {});
                 }));
@@ -303,8 +302,8 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
-                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
 
@@ -345,8 +344,8 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
-                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
                 if (err) {
@@ -373,7 +372,7 @@ class Harvest {
      *
      * @param {string} grantType
      * @param {string} payload
-     * @param {string} callback
+     * @param callback
      * @param {string} [redirectTo]
      */
     getAccessToken(grantType, payload, callback, redirectTo) {
@@ -402,8 +401,8 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
-                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
                 callback(err, body);
@@ -524,9 +523,8 @@ class Harvest {
                 this.throttle(() => {
                     request(options, (err, response, body) => {
 
-                        if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
-                            console.log('body', body);
-                            err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
+                        if (!err && response.statusCode != 200) {
+                            err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                         }
 
                         if (err) {

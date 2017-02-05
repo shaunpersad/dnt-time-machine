@@ -38,7 +38,7 @@ class Slack {
             request(options, (err, response, body) => {
 
                 if (!err && response.statusCode != 200) {
-                    err = new Error('Slack API error.');
+                    err = new Error(_.get(body, 'message', JSON.stringify(body)));
                 }
 
                 callback(err, _.get(body, 'members', []));
@@ -70,7 +70,7 @@ class Slack {
             request(options, (err, response, body) => {
 
                 if (!err && response.statusCode != 200) {
-                    err = new Error('Slack API error.');
+                    err = new Error(_.get(body, 'message', JSON.stringify(body)));
                 }
 
                 callback(err, body);
