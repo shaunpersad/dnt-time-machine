@@ -5,7 +5,7 @@ const url = require('url');
 
 function copy(req, res) {
 
-    const harvestAccessToken = _.get(req, 'cookies.harvest_access_token', _.get(req, 'query.harvest_access_token', ''));
+    const harvestAccessToken = _.get(req, 'query.harvest_access_token', _.get(req, 'cookies.harvest_access_token', ''));
     const harvestRefreshToken = _.get(req, 'cookies.harvest_refresh_token', '');
 
     /**
