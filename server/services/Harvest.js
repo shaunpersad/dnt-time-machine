@@ -272,7 +272,7 @@ class Harvest {
 
                 const options = _.defaultsDeep(requestOptions, {
                     url: `daily/${today.dayOfYear()}/${today.year()}`,
-                    baseUrl: this.harvest.apiUrl,
+                    baseUrl: this.apiUrl,
                     json: true
                 });
 
