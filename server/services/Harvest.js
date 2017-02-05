@@ -156,6 +156,7 @@ class HarvestUser {
             request(options, (err, response, timesheet) => {
 
                 if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
+                    console.log('response', timesheet);
                     err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
                 }
 
