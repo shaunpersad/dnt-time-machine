@@ -80,6 +80,7 @@ class HarvestUser {
 
         this.harvest.getTimesheetsForDateRange(requestOptions, (day, timesheets, callback) => {
 
+            console.log('day:', day.format('YYYY-MM-DD'));
             const dayIndex = day.day();
 
             if (!currentWeek[dayIndex]) {
@@ -87,6 +88,7 @@ class HarvestUser {
                 return callback();
             }
 
+            console.log('is last week');
             const currentWeekTimesheets = currentWeek[dayIndex];
 
             async.each(timesheets, (lastWeekTimesheet, callback) => {
