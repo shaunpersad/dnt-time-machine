@@ -157,7 +157,7 @@ class HarvestUser {
         this.harvest.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && response.statusCode != 200) {
+                if (!err && !_.get(body, 'id')) {
                     err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
@@ -403,7 +403,7 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && response.statusCode != 200) {
+                if (!err && !_.get(body, 'access_token')) {
                     err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
