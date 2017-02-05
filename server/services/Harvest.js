@@ -152,24 +152,16 @@ class HarvestUser {
             json: true
         };
 
-        console.log({
-            spent_at: day.format('YYYY-M-D'),
-            project_id: projectId,
-            task_id: taskId,
-            hours: hours
-        });
+        this.harvest.throttle(() => {
+            request(options, (err, response, timesheet) => {
 
-        callback();
-        // this.harvest.throttle(() => {
-        //     request(options, (err, response, timesheet) => {
-        //
-        //         if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
-        //             err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
-        //         }
-        //
-        //         callback(err, timesheet);
-        //     });
-        // });
+                if ((!err && timesheet && _.get(timesheet, 'error')) || response.statusCode != 200) {
+                    err = new Error(_.get(timesheet, 'error_description', 'Harvest API error.'));
+                }
+
+                callback(err, timesheet);
+            });
+        });
     }
 }
 
