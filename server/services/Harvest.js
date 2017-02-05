@@ -78,7 +78,7 @@ class HarvestUser {
 
         console.log(lastWeekMonday.format('YYYY-MM-DD'), today.format('YYYY-MM-DD'));
 
-        this.getTimesheetsForDateRange(requestOptions, (day, timesheets, callback) => {
+        this.harvest.getTimesheetsForDateRange(requestOptions, (day, timesheets, callback) => {
 
             const dayIndex = day.day();
 
