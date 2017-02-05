@@ -8,7 +8,7 @@ function harvestAuth(req, res) {
 
     console.log('code', code);
     console.log('state', state);
-    
+
     /**
      * @type {Harvest}
      */
