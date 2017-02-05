@@ -197,7 +197,7 @@ class Harvest {
         });
     }
 
-    getAccessToken(grantType, payload, callback) {
+    getAccessToken(grantType, payload, callback, redirectTo) {
 
         let payloadKey = 'refresh_token';
         if (grantType === 'authorization_code') {
@@ -216,6 +216,9 @@ class Harvest {
             },
             json: true
         };
+        if (payloadKey === 'code') {
+            options.redirect_uri = redirectTo;
+        }
 
         console.log(options);
 
@@ -241,6 +244,7 @@ class Harvest {
 
         return `${authorizeUrl}?${query}`;
     }
+
 
     getHours(requestOptions, callback) {
 

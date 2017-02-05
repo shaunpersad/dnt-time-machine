@@ -30,7 +30,8 @@ function harvestAuth(req, res) {
         console.log('redirecting to', req.app.locals.services.appUrl(state));
 
         res.redirect(req.app.locals.services.appUrl(state));
-    });
+        
+    }, req.app.locals.services.appUrl('harvest-auth'));
 }
 
 module.exports = harvestAuth;
