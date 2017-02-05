@@ -18,7 +18,7 @@ function copy(req, res) {
             harvest.getUser(harvestAccessToken, harvestRefreshToken, (err, harvestUser) => {
 
                 if (err) {
-                    next('auth');
+                    return next('auth');
                 }
                 next(null, harvestUser);
             });
