@@ -217,7 +217,7 @@ class Harvest {
             json: true
         };
         if (payloadKey === 'code') {
-            options.redirect_uri = redirectTo;
+            options.form.redirect_uri = redirectTo;
         }
 
         console.log(options);
