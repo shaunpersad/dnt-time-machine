@@ -5,6 +5,9 @@ const url = require('url');
 
 function copy(req, res) {
 
+    console.log('request', req.query);
+    console.log('request num', Math.random());
+
     const harvestAccessToken = _.get(req, 'query.harvest_access_token', _.get(req, 'cookies.harvest_access_token', ''));
     const harvestRefreshToken = _.get(req, 'cookies.harvest_refresh_token', '');
 
@@ -22,7 +25,7 @@ function copy(req, res) {
             res.cookie('harvest_access_token', harvestUser.accessToken || '');
             res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
 
-            harvestUser.copyPreviousWeekIntoLatest(next);
+            harvestUser.getHours(next);
         }
     ], (err, numCreated) => {
 
