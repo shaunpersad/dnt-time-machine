@@ -104,7 +104,6 @@ class HarvestAdmin {
 
         this.harvest.getHours({
             qs: {
-                slim: 1,
                 of_user: harvestUserId
             },
             auth: this.auth,
@@ -294,6 +293,9 @@ class Harvest {
                 const options = _.defaultsDeep(requestOptions, {
                     url: `daily/${today.dayOfYear()}/${today.year()}`,
                     baseUrl: this.apiUrl,
+                    qs: {
+                        slim: 1
+                    },
                     json: true
                 });
 
