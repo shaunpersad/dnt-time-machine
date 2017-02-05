@@ -17,6 +17,7 @@ function harvestAuth(req, res) {
     harvest.getAccessToken('authorization_code', code, (err, tokens) => {
 
         if (err) {
+            console.log(err);
             return res.send('Authorization failed!');
         }
 

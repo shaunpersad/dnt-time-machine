@@ -217,6 +217,8 @@ class Harvest {
             json: true
         };
 
+        console.log(options);
+
         request(options, (err, response, body) => {
 
             if (body || _.get(body, 'error')) {
