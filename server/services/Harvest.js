@@ -224,7 +224,7 @@ class Harvest {
 
         request(options, (err, response, body) => {
 
-            if (body || _.get(body, 'error')) {
+            if (body && _.get(body, 'error')) {
                 err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
             }
 
