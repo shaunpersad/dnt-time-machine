@@ -21,7 +21,7 @@ function harvestAuth(req, res) {
         }
 
         console.log('tokens', tokens);
-        
+
         res.cookie('harvest_access_token', _.get(tokens, 'access_token', ''));
         res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token', ''));
 

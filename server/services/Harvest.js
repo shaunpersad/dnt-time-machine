@@ -199,9 +199,9 @@ class Harvest {
 
     getAccessToken(grantType, payload, callback) {
 
-        let payloadKey = 'authorization_code';
-        if (grantType === 'refresh_token') {
-            payloadKey = 'refresh_token';
+        let payloadKey = 'refresh_token';
+        if (grantType === 'authorization_code') {
+            payloadKey = 'code';
         }
 
         const options = {
@@ -218,6 +218,10 @@ class Harvest {
         };
 
         request(options, (err, response, body) => {
+
+            if (body || _.get(body, 'error')) {
+                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+            }
 
             callback(err, body);
         });
