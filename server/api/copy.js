@@ -27,6 +27,8 @@ function copy(req, res) {
     ], (err, hours) => {
 
         if (err) {
+            console.log('Error', err);
+
             const authUrl = req.app.locals.services.appUrl('harvest-auth');
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
