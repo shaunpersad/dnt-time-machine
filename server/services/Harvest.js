@@ -297,6 +297,8 @@ class Harvest {
                     json: true
                 });
 
+                console.log(options);
+
                 request(options, (err, response, body) => {
 
                     if (!err && body && _.get(body, 'error')) {
@@ -309,7 +311,7 @@ class Harvest {
 
                     const timesheetsForDay = _.get(body, 'day_entries', []);
 
-                    console.log('timesheetsForDay', timesheetsForDay);
+                    console.log('timesheetsForDay', body);
                     /**
                      * Add up the hours and add it to the total.
                      *
