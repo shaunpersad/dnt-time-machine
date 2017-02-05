@@ -48,7 +48,7 @@ function destroy(req, res) {
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
                     if (err) {
-                        // TODO: email
+                        // TODO: email these people.
                     }
                     callback();
                 });

@@ -113,7 +113,7 @@ class HarvestAdmin {
         this.harvest.throttle(() => {
             request(options, (err, response, usersWrapper) => {
 
-                if (!err && usersWrapper && _.get(usersWrapper, 'error')) {
+                if ((!err && usersWrapper && _.get(usersWrapper, 'error')) || response.statusCode != 200) {
                     err = new Error(_.get(usersWrapper, 'error_description', 'Harvest API error.'));
                 }
 
@@ -183,7 +183,7 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && body && _.get(body, 'error')) {
+                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
                     err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
                 }
 
@@ -225,7 +225,7 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && body && _.get(body, 'error')) {
+                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
                     err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
                 }
 
@@ -282,7 +282,7 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && body && _.get(body, 'error')) {
+                if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
                     err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
                 }
 
@@ -291,6 +291,12 @@ class Harvest {
         });
     }
 
+    /**
+     *
+     * @param {string} redirectTo
+     * @param {string} state
+     * @returns {string}
+     */
     getAuthorizeUrl(redirectTo, state) {
 
         const authorizeUrl = url.resolve(this.apiUrl, 'oauth2/authorize');
@@ -304,6 +310,11 @@ class Harvest {
         return `${authorizeUrl}?${query}`;
     }
 
+    /**
+     *
+     * @param {{}} requestOptions
+     * @param callback
+     */
     getHoursForLatestWeek(requestOptions, callback) {
 
         let hours = 0;
@@ -325,6 +336,12 @@ class Harvest {
         });
     }
 
+    /**
+     *
+     * @param {{}} requestOptions
+     * @param {function} forEachTimesheet
+     * @param callback
+     */
     getTimesheetsForLatestWeek(requestOptions, forEachTimesheet, callback) {
 
         const today = moment();
@@ -347,6 +364,14 @@ class Harvest {
         this.getTimesheetsForDateRange(requestOptions, forEachTimesheet, monday, today, callback);
     }
 
+    /**
+     *
+     * @param {{}} requestOptions
+     * @param {function} forEachTimesheet
+     * @param {moment.Moment} earliest
+     * @param {moment.Moment} latest
+     * @param callback
+     */
     getTimesheetsForDateRange(requestOptions, forEachTimesheet, earliest, latest, callback) {
 
         const day = latest.clone();
@@ -379,7 +404,7 @@ class Harvest {
                 this.throttle(() => {
                     request(options, (err, response, body) => {
 
-                        if (!err && body && _.get(body, 'error')) {
+                        if ((!err && body && _.get(body, 'error')) || response.statusCode != 200) {
                             err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
                         }
 

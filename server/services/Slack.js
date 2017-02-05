@@ -5,6 +5,12 @@ const throttledQueue = require('throttled-queue');
 
 class Slack {
 
+    /**
+     *
+     * @param {string} botToken
+     * @param {string} apiUrl
+     * @param {string} generalChannel
+     */
     constructor(botToken, apiUrl, generalChannel) {
 
         this.apiUrl = apiUrl;
@@ -13,6 +19,10 @@ class Slack {
         this.throttle = throttledQueue(1, 1000, true); // 1 request per second.
     }
 
+    /**
+     *
+     * @param callback
+     */
     getUsers(callback) {
 
         const options = {
@@ -27,11 +37,21 @@ class Slack {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
+                if (!err && response.statusCode != 200) {
+                    err = new Error('Slack API error.');
+                }
+
                 callback(err, _.get(body, 'members', []));
             });
         });
     }
 
+    /**
+     *
+     * @param {string} message
+     * @param {string} channel
+     * @param callback
+     */
     messageChannel(message, channel, callback) {
 
         const options = {
@@ -49,11 +69,23 @@ class Slack {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
+                if (!err && response.statusCode != 200) {
+                    err = new Error('Slack API error.');
+                }
+
                 callback(err, body);
             });
         });
     }
 
+    /**
+     *
+     * @param {string} email
+     * @param {string} message
+     * @param {[{}]} slackUsers
+     * @param callback
+     * @returns {*}
+     */
     messageUserByEmail(email, message, slackUsers, callback) {
 
         const emailLowerCase = email.toLowerCase();
@@ -67,6 +99,9 @@ class Slack {
             return callback(new Error('No slack user found.'));
         }
 
+        /**
+         * Protection when debugging with your @username as the general channel.
+         */
         const channel = _.startsWith(this.generalChannel, '@') ? this.generalChannel : _.get(slackUser, 'id');
 
         this.messageChannel(message, channel, callback);
