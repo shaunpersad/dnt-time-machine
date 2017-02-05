@@ -252,10 +252,7 @@ class Harvest {
         return `${authorizeUrl}?${query}`;
     }
 
-
-    getHours(requestOptions, callback) {
-
-        let hours = 0;
+    getWeeklyTimesheets(requestOptions, forEachTimesheet, callback) {
 
         const today = moment();
         const monday = moment();
@@ -299,8 +296,6 @@ class Harvest {
                     json: true
                 }, requestOptions);
 
-                console.log(options);
-
                 request(options, (err, response, body) => {
 
                     if (!err && body && _.get(body, 'error')) {
@@ -311,28 +306,34 @@ class Harvest {
                         return callback(err);
                     }
 
-                    const timesheetsForDay = _.get(body, 'day_entries', []);
-
-                    console.log('timesheetsForDay', body);
-                    /**
-                     * Add up the hours and add it to the total.
-                     *
-                     */
-                    hours+= _.reduce(timesheetsForDay, (sum, timesheet) => {
-                        return sum + _.get(timesheet, 'hours', 0);
-                    }, 0);
-
+                    const dayClone = today.clone();
                     today.subtract(1, 'day');
-                    callback();
+
+                    forEachTimesheet(dayClone, _.get(body, 'day_entries', []), callback);
                 });
 
             },
-            (err) => {
-
-                callback(err, hours);
-            }
+            callback
         );
+    }
 
+    getHours(requestOptions, callback) {
+
+        let hours = 0;
+
+        this.getWeeklyTimesheets(requestOptions, (day, timesheets) => {
+
+            /**
+             * Add up the hours and add it to the total.
+             *
+             */
+            hours+= _.reduce(timesheets, (sum, timesheet) => {
+                return sum + _.get(timesheet, 'hours', 0);
+            }, 0);
+
+        }, (err) => {
+            callback(err, hours);
+        });
     }
 }
 
