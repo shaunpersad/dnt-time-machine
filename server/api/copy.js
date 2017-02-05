@@ -22,7 +22,7 @@ function copy(req, res) {
             res.cookie('harvest_access_token', harvestUser.accessToken || '');
             res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
 
-            harvestUser.getHours(next);
+            harvestUser.getHoursForLatestWeek(next);
         }
     ], (err, hours) => {
 

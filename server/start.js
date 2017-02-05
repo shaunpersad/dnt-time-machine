@@ -24,7 +24,7 @@ const SLACK_GENERAL_CHANNEL = process.env.SLACK_GENERAL_CHANNEL || '@shaun.persa
 const HARVEST_API_URL = process.env.HARVEST_API_URL || 'https://domandtom.harvestapp.com';
 const HARVEST_CLIENT_ID = process.env.HARVEST_CLIENT_ID || 'jHkAoTeOe6rC0YyoII6Z0A';
 const HARVEST_CLIENT_SECRET = process.env.HARVEST_CLIENT_SECRET || 'Tm555gCxUzWyDITCh65Kz0B-8RFyaiW-nCnp2CT8nTBpK7OLiVXVHRZTy_8GxXGkGAB1rnNM0kVcOCwUoa4meA';
-const HARVEST_EMAIL_DOMAIN = process.env.HARVEST_EMAIL_DOMAIN || 'domandtomm.com';
+const HARVEST_EMAIL_DOMAIN = process.env.HARVEST_EMAIL_DOMAIN || 'domandtom.com';
 
 const WAKATIME_API_URL = process.env.WAKATIME_API_URL || '';
 const WAKATIME_CLIENT_ID = process.env.WAKATIME_CLIENT_ID || '';

@@ -18,6 +18,8 @@ function destroy(req, res) {
      */
     const slack = _.get(req, 'app.locals.services.slack');
 
+    res.send('Time bot preparing to destroy...');
+
     async.waterfall([
 
         (next) => {
@@ -52,32 +54,28 @@ function destroy(req, res) {
                 });
 
             }, (err) => {
-                /**
-                 * Create an array of harvest users' names.
-                 */
-                const delinquents = _.map(harvestDelinquents, (harvestUser) => {
 
-                    return `${_.get(harvestUser, 'first_name', '')} ${_.get(harvestUser, 'last_name', '')}`;
+                const reallyBadPeople = [];
+
+                _.forEach(harvestDelinquents, (harvestDelinquent) => {
+
+                    if (harvestDelinquent.hours === 0) {
+                        reallyBadPeople.push(harvestDelinquent.getName());
+                    }
                 });
 
-                next(err, delinquents);
+                next(err, reallyBadPeople);
             });
         },
-        (delinquents, next) => {
+        (reallyBadPeople, next) => {
 
-            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${delinquents.join(', ')}\nHasta la vista, baby.:sunglasses: :tom:`;
+            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}\nHasta la vista, baby.:sunglasses: :tom:`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
-            const message = delinquents.length ? badMessage : goodMessage;
+            const message = reallyBadPeople.length ? badMessage : goodMessage;
 
             slack.messageChannel(message, slack.generalChannel, next);
         }
-    ], (err) => {
-
-        if (err) {
-            return res.send(err.message || 'Something went horribly wrong.');
-        }
-        res.send('Time bot destroyed.');
-    });
+    ]);
 
 }
 

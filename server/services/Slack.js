@@ -1,6 +1,7 @@
 "use strict";
 const _ = require('lodash');
 const request = require('request');
+const throttledQueue = require('throttled-queue');
 
 class Slack {
 
@@ -9,6 +10,7 @@ class Slack {
         this.apiUrl = apiUrl;
         this.generalChannel = generalChannel;
         this.botToken = botToken;
+        this.throttle = throttledQueue(1, 1000, true); // 1 request per second.
     }
 
     getUsers(callback) {
@@ -22,9 +24,11 @@ class Slack {
             json: true
         };
 
-        request(options, (err, response, body) => {
+        this.throttle(() => {
+            request(options, (err, response, body) => {
 
-            callback(err, _.get(body, 'members', []));
+                callback(err, _.get(body, 'members', []));
+            });
         });
     }
 
@@ -42,9 +46,11 @@ class Slack {
             json: true
         };
 
-        request(options, (err, response, body) => {
+        this.throttle(() => {
+            request(options, (err, response, body) => {
 
-            callback(err, body);
+                callback(err, body);
+            });
         });
     }
 
@@ -63,9 +69,7 @@ class Slack {
 
         const channel = _.startsWith(this.generalChannel, '@') ? this.generalChannel : _.get(slackUser, 'id');
 
-        console.log(email);
-        callback();
-        //this.messageChannel(message, channel, callback);
+        this.messageChannel(message, channel, callback);
     }
 }
 

@@ -3,8 +3,21 @@ const _ = require('lodash');
 const async = require('async');
 const moment = require('moment');
 const request = require('request');
+const throttledQueue = require('throttled-queue');
 const querystring = require('querystring');
 const url = require('url');
+
+class HarvestDelinquent {
+
+    constructor(user, hours) {
+        this.user = user;
+        this.hours = hours;
+    }
+
+    getName() {
+        return `${_.get(this.user, 'first_name', '')} ${_.get(this.user, 'last_name', '')}`;
+    }
+}
 
 class HarvestUser {
 
@@ -15,9 +28,9 @@ class HarvestUser {
         this.harvest = harvest;
     }
 
-    getHours(callback) {
+    getHoursForLatestWeek(callback) {
 
-        this.harvest.getHours({
+        this.harvest.getHoursForLatestWeek({
             qs: {
                 access_token: this.accessToken
             }
@@ -51,18 +64,26 @@ class HarvestAdmin {
             },
             (harvestUsers, next) => {
 
-                async.filter(harvestUsers, (harvestUser, callback) => {
+                const delinquents = [];
+
+                async.each(harvestUsers, (harvestUser, callback) => {
 
                     if (!harvestUser.is_active) {
-                        return callback(null, false);
+                        return callback();
                     }
 
-                    this.getUserHours(harvestUser.id, (err, hours) => {
+                    this.getUserHoursForLatestWeek(harvestUser.id, (err, hours) => {
 
-                        callback(err, hours < minHours);
+                        if (!err && (hours < minHours)) {
+                            delinquents.push(new HarvestDelinquent(harvestUser, hours));
+                        }
+                        callback(err);
                     });
 
-                }, next);
+                }, (err) => {
+
+                    next(err, delinquents)
+                });
             }
         ], callback);
     }
@@ -81,16 +102,18 @@ class HarvestAdmin {
             json: true
         };
 
-        request(options, (err, response, usersWrapper) => {
+        this.harvest.throttle(() => {
+            request(options, (err, response, usersWrapper) => {
 
-            if (!err && usersWrapper && _.get(usersWrapper, 'error')) {
-                err = new Error(_.get(usersWrapper, 'error_description', 'Harvest API error.'));
-            }
+                if (!err && usersWrapper && _.get(usersWrapper, 'error')) {
+                    err = new Error(_.get(usersWrapper, 'error_description', 'Harvest API error.'));
+                }
 
-            callback(err, _.map(usersWrapper || [], (userWrapper) => {
+                callback(err, _.map(usersWrapper || [], (userWrapper) => {
 
-                return _.get(userWrapper, 'user', {});
-            }));
+                    return _.get(userWrapper, 'user', {});
+                }));
+            });
         });
     }
 
@@ -100,9 +123,9 @@ class HarvestAdmin {
      * @param harvestUserId
      * @param callback
      */
-    getUserHours(harvestUserId, callback) {
+    getUserHoursForLatestWeek(harvestUserId, callback) {
 
-        this.harvest.getHours({
+        this.harvest.getHoursForLatestWeek({
             qs: {
                 of_user: harvestUserId
             },
@@ -125,6 +148,7 @@ class Harvest {
         this.clientSecret = clientSecret;
         this.apiUrl = apiUrl;
         this.emailDomain = emailDomain;
+        this.throttle = throttledQueue(100, 20 * 1000, true); // 100 calls every 20 seconds.
     }
 
     /**
@@ -148,20 +172,23 @@ class Harvest {
             json: true
         };
 
-        request(options, (err, response, body) => {
+        this.throttle(() => {
+            request(options, (err, response, body) => {
 
-            if (!err && body && _.get(body, 'error')) {
-                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
-            }
+                if (!err && body && _.get(body, 'error')) {
+                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                }
 
-            const email = _.get(body, 'user.email', '').toLowerCase();
-            const isAdmin = _.get(body, 'user.admin', false);
 
-            if (!(_.endsWith(email, `@${this.emailDomain}`) && isAdmin)) {
+                const email = _.get(body, 'user.email', '').toLowerCase();
+                const isAdmin = _.get(body, 'user.admin', false);
 
-                return callback(new Error('Not authorized.'));
-            }
-            callback(err, new HarvestAdmin(auth, this));
+                if (!(_.endsWith(email, `@${this.emailDomain}`) && isAdmin)) {
+
+                    return callback(new Error('Not authorized.'));
+                }
+                callback(err, new HarvestAdmin(auth, this));
+            });
         });
     }
 
@@ -181,28 +208,30 @@ class Harvest {
             json: true
         };
 
-        request(options, (err, response, body) => {
+        this.throttle(() => {
+            request(options, (err, response, body) => {
 
-            if (!err && body && _.get(body, 'error')) {
-                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
-            }
+                if (!err && body && _.get(body, 'error')) {
+                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                }
 
-            if (err) {
+                if (err) {
 
-                return this.getAccessToken('refresh_token', refreshToken, (err, tokens) => {
+                    return this.getAccessToken('refresh_token', refreshToken, (err, tokens) => {
 
-                    if (!err && body && _.get(body, 'error')) {
-                        err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
-                    }
+                        if (!err && body && _.get(body, 'error')) {
+                            err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                        }
 
-                    accessToken = _.get(tokens, 'access_token');
-                    refreshToken = _.get(tokens, 'refresh_token');
+                        accessToken = _.get(tokens, 'access_token');
+                        refreshToken = _.get(tokens, 'refresh_token');
 
-                    callback(err, new HarvestUser(accessToken, refreshToken, this));
-                });
-            }
+                        callback(err, new HarvestUser(accessToken, refreshToken, this));
+                    });
+                }
 
-            callback(err, new HarvestUser(accessToken, refreshToken, this));
+                callback(err, new HarvestUser(accessToken, refreshToken, this));
+            });
         });
     }
 
@@ -229,13 +258,15 @@ class Harvest {
             options.form.redirect_uri = redirectTo;
         }
 
-        request(options, (err, response, body) => {
+        this.throttle(() => {
+            request(options, (err, response, body) => {
 
-            if (!err && body && _.get(body, 'error')) {
-                err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
-            }
+                if (!err && body && _.get(body, 'error')) {
+                    err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
+                }
 
-            callback(err, body);
+                callback(err, body);
+            });
         });
     }
 
@@ -252,11 +283,11 @@ class Harvest {
         return `${authorizeUrl}?${query}`;
     }
 
-    getHours(requestOptions, callback) {
+    getHoursForLatestWeek(requestOptions, callback) {
 
         let hours = 0;
 
-        this.getTimesheetsForLastWeek(requestOptions, (day, timesheets, callback) => {
+        this.getTimesheetsForLatestWeek(requestOptions, (day, timesheets, callback) => {
 
             /**
              * Add up the hours and add it to the total.
@@ -273,7 +304,7 @@ class Harvest {
         });
     }
 
-    getTimesheetsForLastWeek(requestOptions, forEachTimesheet, callback) {
+    getTimesheetsForLatestWeek(requestOptions, forEachTimesheet, callback) {
 
         const today = moment();
         const monday = moment();
@@ -324,22 +355,23 @@ class Harvest {
                     json: true
                 }, requestOptions);
 
-                request(options, (err, response, body) => {
+                this.throttle(() => {
+                    request(options, (err, response, body) => {
 
-                    if (!err && body && _.get(body, 'error')) {
-                        err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
-                    }
+                        if (!err && body && _.get(body, 'error')) {
+                            err = new Error(_.get(body, 'error_description', 'Harvest API error.'));
+                        }
 
-                    if (err) {
-                        return callback(err);
-                    }
+                        if (err) {
+                            return callback(err);
+                        }
 
-                    const dayClone = day.clone();
-                    day.subtract(1, 'day');
+                        const dayClone = day.clone();
+                        day.subtract(1, 'day');
 
-                    forEachTimesheet(dayClone, _.get(body, 'day_entries', []), callback);
+                        forEachTimesheet(dayClone, _.get(body, 'day_entries', []), callback);
+                    });
                 });
-
             },
             callback
         );
