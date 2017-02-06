@@ -1,11 +1,13 @@
 "use strict";
 const _ = require('lodash');
 const async = require('async');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const request = require('request');
 const throttledQueue = require('throttled-queue');
 const querystring = require('querystring');
 const url = require('url');
+
+const TIMEZONE = 'America/New_York';
 
 class HarvestDelinquent {
 
@@ -24,12 +26,14 @@ class HarvestUser {
     /**
      * @param {string} accessToken
      * @param {string} refreshToken
+     * @param {string} userId
      * @param {Harvest} harvest
      */
-    constructor(accessToken, refreshToken, harvest) {
+    constructor(accessToken, refreshToken, userId, harvest) {
 
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+        this.id = userId;
         this.harvest = harvest;
     }
 
@@ -54,20 +58,22 @@ class HarvestUser {
                 access_token: this.accessToken
             }
         };
-        const today = moment();
-        const lastWeekMonday = moment();
+        const today = moment().tz(TIMEZONE);
 
         const todayId = today.day();
 
         if (todayId === 1) { // its monday
             today.subtract(1, 'day'); //
         }
+        const lastWeekMonday = today.clone();
+
         /**
          * Start from last monday.
          */
         while(lastWeekMonday.day() !== 1) {
             lastWeekMonday.subtract(1, 'day');
         }
+
         /**
          * Go back one more week.
          */
@@ -81,10 +87,9 @@ class HarvestUser {
             const dayIndex = day.day();
 
             if (!currentWeek[dayIndex]) {
-                currentWeek[dayIndex] = timesheets;
+                currentWeek[dayIndex] = _.cloneDeep(timesheets);
                 return callback();
             }
-
             const currentWeekTimesheets = currentWeek[dayIndex];
 
             async.each(timesheets, (lastWeekTimesheet, callback) => {
@@ -322,9 +327,9 @@ class Harvest {
      */
     getUser(accessToken, refreshToken, callback) {
 
-        if (!accessToken || !refreshToken) {
+        if (!accessToken) {
 
-            return callback(new Error('Not authorized.'));
+            return callback(new Error('Harvest auth error.'));
         }
 
         const options = {
@@ -339,26 +344,36 @@ class Harvest {
         this.throttle(() => {
             request(options, (err, response, body) => {
 
-                if (!err && response.statusCode != 200) {
+                const userId = _.get(body, 'user.id');
+
+                if (!err && !userId) {
                     err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
                 }
 
                 if (err) {
 
-                    return this.getAccessToken('refresh_token', refreshToken, (err, tokens) => {
+                    if (!refreshToken) {
+                        return callback(new Error('Harvest auth error.'));
+                    }
 
-                        if (!err && body && _.get(body, 'error')) {
-                            err = new Error(_.get(body, 'error_description', 'Harvest auth error.'));
-                        }
+                    return this.getAccessToken('refresh_token', refreshToken, (err, tokens) => {
 
                         accessToken = _.get(tokens, 'access_token');
                         refreshToken = _.get(tokens, 'refresh_token');
 
-                        callback(err, new HarvestUser(accessToken, refreshToken, this));
+                        if (!err && (!accessToken || !refreshToken)) {
+                            err = new Error(_.get(body, 'message', _.get(body, 'error_description', 'Harvest auth error.')));
+                        }
+
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        this.getUser(accessToken, refreshToken, callback);
                     });
                 }
 
-                callback(err, new HarvestUser(accessToken, refreshToken, this));
+                callback(err, new HarvestUser(accessToken, refreshToken, `${userId}`, this));
             });
         });
     }
@@ -458,8 +473,8 @@ class Harvest {
      */
     getTimesheetsForLatestWeek(requestOptions, forEachTimesheet, callback) {
 
-        const today = moment();
-        const monday = moment();
+        const today = moment().tz(TIMEZONE);
+        const monday = moment().tz(TIMEZONE);
 
         const todayId = today.day();
 

@@ -41,7 +41,11 @@ app.locals.services = {
     slack: new Slack(SLACK_BOT_TOKEN, SLACK_API_URL, SLACK_GENERAL_CHANNEL),
     appUrl: appUrl(APP_URL)
 };
+app.get('/test', (req, res) => {
 
+    console.log('test', Math.random());
+    res.send('hello');
+});
 /**
  * Send a warning message.
  */
