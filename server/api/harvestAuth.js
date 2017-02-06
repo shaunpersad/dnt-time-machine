@@ -1,5 +1,6 @@
 "use strict";
 const _ = require('lodash');
+const url = require('url');
 
 function harvestAuth(req, res) {
 
@@ -14,14 +15,12 @@ function harvestAuth(req, res) {
     harvest.getAccessToken('authorization_code', code, (err, tokens) => {
 
         if (err) {
-            console.log(err);
-            return res.send('Authorization failed!');
+            return res.redirect(url.resolve(harvest.apiUrl, '/time/week'));
         }
 
         res.cookie('harvest_access_token', _.get(tokens, 'access_token', ''));
         res.cookie('harvest_refresh_token', _.get(tokens, 'refresh_token', ''));
 
-        console.log('redirecting to /copy');
         res.redirect(req.app.locals.services.appUrl(state, {
             harvest_access_token: _.get(tokens, 'access_token')
         }));

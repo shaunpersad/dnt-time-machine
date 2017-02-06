@@ -29,6 +29,7 @@ function copy(req, res) {
         if (!dangerousCache[harvestUser.id]) {
             dangerousCache[harvestUser.id] = [];
         }
+
         const length = dangerousCache[harvestUser.id].length;
         dangerousCache[harvestUser.id].push(res);
 
