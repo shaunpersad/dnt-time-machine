@@ -42,7 +42,10 @@ function destroy(req, res) {
             async.each(harvestDelinquents, (harvestDelinquent, callback) => {
 
                 const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
-                const message = `${harvestDelinquent.getName()}, you have not submitted 40 hours this week! Please do so now: https://domandtom.harvestapp.com/time/week`;
+
+                const harvestLink = 'https://domandtom.harvestapp.com/time/week';
+                const copyLink = req.app.locals.services.appUrl('copy');
+                const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on harvest! You can either <${harvestLink}|use a blank timesheet>, or <${copyLink}|copy hours from last week>.\n\nDo it! Or I will subscribe you to cat facts forever.`;
 
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
