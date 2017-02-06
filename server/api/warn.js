@@ -24,7 +24,9 @@ function warn(req, res) {
         },
         (next) => {
 
-            const message = "Warning! If you have not submitted your timesheets, please do so now: <https://domandtom.harvestapp.com/time/week>\nI'll be back.";
+            const harvestLink = 'https://domandtom.harvestapp.com/time/week';
+            const copyLink = req.app.locals.services.appUrl('copy');
+            const message = `Warning! If you have not submitted your timesheets, please do so now. You can either <${harvestLink}|use a blank timesheet> like a neanderthal, or <${copyLink}|copy hours from last week> like a champion lazy person.\n\nDon't make me find you.\n\nI'll be back.`;
 
             slack.messageChannel(message, slack.generalChannel, next);
         }
