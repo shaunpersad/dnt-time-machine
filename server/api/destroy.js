@@ -39,11 +39,12 @@ function destroy(req, res) {
         },
         (harvestDelinquents, slackUsers, next) => {
 
+            const harvestLink = harvest.getWeeklyUrl();
+
             async.each(harvestDelinquents, (harvestDelinquent, callback) => {
 
                 const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
 
-                const harvestLink = 'https://domandtom.harvestapp.com/time/week';
                 const copyLink = req.app.locals.services.appUrl('copy');
                 const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on harvest! You can either <${harvestLink}|use a blank timesheet>, or <${copyLink}|copy hours from last week>.\n\nDo it! Or I will subscribe you to cat facts forever.`;
 
@@ -71,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}\n\nHasta la vista, baby.\n:tom:`;
+            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}---\n\nI am out there. I can't be reasoned with, can't be bargained with. I don't feel pity or remorse or fear, and I absolutely will not stop. Until you all submit your timesheets.\n:tom:`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 

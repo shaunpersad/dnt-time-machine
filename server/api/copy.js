@@ -1,7 +1,6 @@
 "use strict";
 const _ = require('lodash');
 const async = require('async');
-const url = require('url');
 
 const dangerousCache = {}; // wehh. necessary evil to combat chrome's multiple requests. the number of harvest users will never be more than a few hundred anyway.
 
@@ -14,6 +13,7 @@ function copy(req, res) {
      * @type {Harvest}
      */
     const harvest = _.get(req, 'app.locals.services.harvest');
+    const harvestLink = harvest.getWeeklyUrl();
 
     harvest.getUser(harvestAccessToken, harvestRefreshToken, (err, harvestUser) => {
 
@@ -21,7 +21,6 @@ function copy(req, res) {
             const authUrl = req.app.locals.services.appUrl('harvest-auth');
             return res.redirect(harvest.getAuthorizeUrl(authUrl, 'copy'));
         }
-
 
         res.cookie('harvest_access_token', harvestUser.accessToken || '');
         res.cookie('harvest_refresh_token', harvestUser.refreshToken || '');
@@ -38,7 +37,7 @@ function copy(req, res) {
 
                 let res;
                 while (res = dangerousCache[harvestUser.id].pop()) {
-                    res.redirect(url.resolve(harvest.apiUrl, '/time/week'));
+                    res.redirect(harvestLink);
                 }
                 delete dangerousCache[harvestUser.id];
             });

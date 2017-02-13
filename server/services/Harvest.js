@@ -37,20 +37,6 @@ class HarvestUser {
         this.harvest = harvest;
     }
 
-    /**
-     * @param callback
-     */
-    getHoursForLatestWeek(callback) {
-
-        const requestOptions = {
-            qs: {
-                access_token: this.accessToken
-            }
-        };
-
-        this.harvest.getHoursForLatestWeek(requestOptions, callback);
-    }
-
     copyPreviousWeekIntoLatest(callback) {
 
         const requestOptions = {
@@ -58,21 +44,8 @@ class HarvestUser {
                 access_token: this.accessToken
             }
         };
-        const today = moment().tz(TIMEZONE);
-
-        const todayId = today.day();
-
-        if (todayId === 1) { // its monday
-            today.subtract(1, 'day'); //
-        }
-        const lastWeekMonday = today.clone();
-
-        /**
-         * Start from last monday.
-         */
-        while(lastWeekMonday.day() !== 1) {
-            lastWeekMonday.subtract(1, 'day');
-        }
+        const today = this.harvest.constructor.getToday();
+        const lastWeekMonday = this.harvest.constructor.getThisWeekMonday(today);
 
         /**
          * Go back one more week.
@@ -163,6 +136,37 @@ class HarvestUser {
             });
         });
     }
+
+    getTimesheetsForDay(day, callback) {
+
+        this.harvest.getTimesheetsForDay({
+            qs: {
+                access_token: this.accessToken
+            }
+        }, day, callback);
+    }
+
+    getProjects(callback) {
+
+        const options = {
+            url: 'projects',
+            baseUrl: this.apiUrl,
+            qs: {
+                access_token: this.accessToken
+            },
+            json: true
+        };
+
+        this.throttle(() => {
+            request(options, (err, response, body) => {
+
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
+                }
+                callback(err, body || []);
+            });
+        });
+    }
 }
 
 class HarvestAdmin {
@@ -196,6 +200,9 @@ class HarvestAdmin {
                 async.each(harvestUsers, (harvestUser, callback) => {
 
                     if (!harvestUser.is_active) {
+                        return callback();
+                    }
+                    if (this.harvest.excludeEmails.indexOf(_.get(harvestUser, 'email', '').toLowerCase()) !== -1) {
                         return callback();
                     }
 
@@ -268,13 +275,15 @@ class Harvest {
      * @param {string} clientSecret
      * @param {string} apiUrl
      * @param {string} emailDomain
+     * @param excludeEmails
      */
-    constructor(clientId, clientSecret, apiUrl, emailDomain) {
+    constructor(clientId, clientSecret, apiUrl, emailDomain, excludeEmails) {
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.apiUrl = apiUrl;
         this.emailDomain = emailDomain;
+        this.excludeEmails = excludeEmails;
         this.throttle = throttledQueue(100, 20 * 1000, true); // 100 calls every 20 seconds.
     }
 
@@ -468,40 +477,26 @@ class Harvest {
     /**
      *
      * @param {{}} requestOptions
-     * @param {function} forEachTimesheet
+     * @param {function} forEachDay
      * @param callback
      */
-    getTimesheetsForLatestWeek(requestOptions, forEachTimesheet, callback) {
+    getTimesheetsForLatestWeek(requestOptions, forEachDay, callback) {
 
-        const today = moment().tz(TIMEZONE);
-        const monday = moment().tz(TIMEZONE);
+        const today = this.constructor.getToday();
+        const monday = this.constructor.getThisWeekMonday(today);
 
-        const todayId = today.day();
-
-        if (todayId === 1) { // its monday
-            today.subtract(1, 'day'); //
-        }
-        /**
-         * Start from last monday.
-         *
-         * @type {moment.Moment}
-         */
-        while(monday.day() !== 1) {
-            monday.subtract(1, 'day');
-        }
-
-        this.getTimesheetsForDateRange(requestOptions, forEachTimesheet, monday, today, callback);
+        this.getTimesheetsForDateRange(requestOptions, forEachDay, monday, today, callback);
     }
 
     /**
      *
      * @param {{}} requestOptions
-     * @param {function} forEachTimesheet
+     * @param {function} forEachDay
      * @param {moment.Moment} earliest
      * @param {moment.Moment} latest
      * @param callback
      */
-    getTimesheetsForDateRange(requestOptions, forEachTimesheet, earliest, latest, callback) {
+    getTimesheetsForDateRange(requestOptions, forEachDay, earliest, latest, callback) {
 
         const day = latest.clone();
 
@@ -521,35 +516,79 @@ class Harvest {
              */
             (callback) => {
 
-                const options = _.defaultsDeep({
-                    url: `daily/${day.dayOfYear()}/${day.year()}`,
-                    baseUrl: this.apiUrl,
-                    qs: {
-                        slim: 1
-                    },
-                    json: true
-                }, requestOptions);
+                this.getTimesheetsForDay(requestOptions, day, (err, timesheets) => {
 
-                this.throttle(() => {
-                    request(options, (err, response, body) => {
+                    const dayClone = day.clone();
+                    day.subtract(1, 'day');
 
-                        if (!err && response.statusCode != 200) {
-                            err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
-                        }
-
-                        if (err) {
-                            return callback(err);
-                        }
-
-                        const dayClone = day.clone();
-                        day.subtract(1, 'day');
-
-                        forEachTimesheet(dayClone, _.get(body, 'day_entries', []), callback);
-                    });
+                    forEachDay(dayClone, timesheets, callback);
                 });
             },
             callback
         );
+    }
+
+    getTimesheetsForDay(requestOptions, day, callback) {
+
+        const options = _.defaultsDeep({
+            url: `daily/${day.dayOfYear()}/${day.year()}`,
+            baseUrl: this.apiUrl,
+            qs: {
+                slim: 1
+            },
+            json: true
+        }, requestOptions);
+
+        this.throttle(() => {
+            request(options, (err, response, body) => {
+
+                if (!err && response.statusCode != 200) {
+                    err = new Error(_.get(body, 'message', _.get(body, 'error_description', JSON.stringify(body))));
+                }
+                callback(err, _.get(body, 'day_entries', []));
+            });
+        });
+    }
+
+    getWeeklyUrl() {
+
+        const today = this.constructor.getToday();
+        const thisWeekMonday = this.constructor.getThisWeekMonday(today);
+
+        return url.resolve(this.apiUrl, `/time/week/${thisWeekMonday.format('YYYY/MM/DD')}`);
+    }
+
+    /**
+     *
+     * @returns {moment.Moment}
+     */
+    static getToday() {
+
+        return moment().tz(TIMEZONE);
+    }
+
+    /**
+     * @param {moment.Moment} today
+     * @returns {moment.Moment}
+     */
+    static getThisWeekMonday(today) {
+
+        const todayId = today.day();
+
+        if (todayId === 1) { // its monday
+            today.subtract(1, 'day');
+        }
+        const monday = today.clone();
+        /**
+         * Start from last monday.
+         *
+         * @type {moment.Moment}
+         */
+        while(monday.day() !== 1) {
+            monday.subtract(1, 'day');
+        }
+
+        return monday;
     }
 }
 

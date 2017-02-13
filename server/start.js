@@ -13,9 +13,13 @@ const cookieParser = require('cookie-parser');
 const appUrl = require('./services/appUrl');
 const Harvest = require('./services/Harvest');
 const Slack = require('./services/Slack');
+const WakaTime = require('./services/WakaTime');
 
 const APP_URL = process.env.APP_URL;
 const COOKIE_SECRET = process.env.COOKIE_SECRET;
+const EXCLUDE_EMAILS = _.map(_.get(process.env, 'EXCLUDE_EMAILS', '').split(','), (email) => {
+    return _.trim(email).toLowerCase();
+});
 
 const SLACK_API_URL = process.env.SLACK_API_URL;
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
@@ -27,6 +31,7 @@ const HARVEST_CLIENT_SECRET = process.env.HARVEST_CLIENT_SECRET;
 const HARVEST_EMAIL_DOMAIN = process.env.HARVEST_EMAIL_DOMAIN;
 
 const WAKATIME_API_URL = process.env.WAKATIME_API_URL;
+const WAKATIME_API_VERSION = process.env.WAKATIME_API_VERSION;
 const WAKATIME_CLIENT_ID = process.env.WAKATIME_CLIENT_ID;
 const WAKATIME_CLIENT_SECRET = process.env.WAKATIME_CLIENT_SECRET;
 
@@ -37,13 +42,15 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser(COOKIE_SECRET));
 
 app.locals.services = {
-    harvest: new Harvest(HARVEST_CLIENT_ID, HARVEST_CLIENT_SECRET, HARVEST_API_URL, HARVEST_EMAIL_DOMAIN),
+    appUrl: appUrl(APP_URL),
+    harvest: new Harvest(HARVEST_CLIENT_ID, HARVEST_CLIENT_SECRET, HARVEST_API_URL, HARVEST_EMAIL_DOMAIN, EXCLUDE_EMAILS),
     slack: new Slack(SLACK_BOT_TOKEN, SLACK_API_URL, SLACK_GENERAL_CHANNEL),
-    appUrl: appUrl(APP_URL)
+    wakatime: new WakaTime(WAKATIME_CLIENT_ID, WAKATIME_CLIENT_SECRET, WAKATIME_API_URL, WAKATIME_API_VERSION)
 };
+
 app.get('/test', (req, res) => {
 
-    console.log('test', Math.random());
+    console.log('test', SLACK_GENERAL_CHANNEL);
     res.send('hello');
 });
 /**
