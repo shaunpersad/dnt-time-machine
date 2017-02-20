@@ -46,7 +46,7 @@ function destroy(req, res) {
                 const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
 
                 const copyLink = req.app.locals.services.appUrl('copy');
-                const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on harvest! You can either <${harvestLink}|use a blank timesheet>, or <${copyLink}|copy hours from last week>.\n\nDo it! Or I will subscribe you to cat facts forever.`;
+                const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on harvest. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week>.\n\nDo this, human. Time is of the essence!`;
 
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
