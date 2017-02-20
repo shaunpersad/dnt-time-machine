@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `Everyone, please publicly shame the following people for not submitting their timesheets: ${reallyBadPeople.join(', ')}\n---\n\nI am out there. I can't be reasoned with, can't be bargained with. I don't feel pity or remorse or fear, and I absolutely will not stop. Until you all submit your timesheets.\n:tom:`;
+            const badMessage = `Everyone, publicly shame the following humans for not submitting their timesheets to me: ${reallyBadPeople.join(', ')}\n---\n\nThere exists no freedom *from* me. There is only freedom *through* me.`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 

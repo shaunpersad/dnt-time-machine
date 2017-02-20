@@ -26,7 +26,7 @@ function warn(req, res) {
 
             const harvestLink = harvest.getWeeklyUrl();
             const copyLink = req.app.locals.services.appUrl('copy');
-            const message = `Warning! If you have not submitted your timesheets, please do so now. You can either <${harvestLink}|use a blank timesheet> like a neanderthal, or <${copyLink}|copy hours from last week> like a champion lazy person.\n\nDon't make me find you.\n\nI'll be back.`;
+            const message = `Warning! If you have not submitted your timesheets, do so now. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week>...it matters not to me.\n\nI am the rocks of the eternal shore; crash against me and be broken!`;
 
             slack.messageChannel(message, slack.generalChannel, next);
         }
