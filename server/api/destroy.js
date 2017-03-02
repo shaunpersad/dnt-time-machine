@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')}, the other day the grass was brown. Now its green cuz I ain't give up. But you did. You ain't use enough cocoa butter! http://giphy.com/gifs/dj-khaled-7bFRgOnu1ofyU`;
+            const badMessage = `${reallyBadPeople.join(', ')}, here's the :key::\n---\n\nThe other day the grass was brown. Now its green cuz I ain't give up. But you did. You ain't use enough cocoa butter! http://giphy.com/gifs/dj-khaled-7bFRgOnu1ofyU`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
