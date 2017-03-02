@@ -46,7 +46,7 @@ function destroy(req, res) {
                 const harvestUserEmail = _.get(harvestDelinquent, 'user.email', '');
 
                 const copyLink = req.app.locals.services.appUrl('copy');
-                const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on Harvest. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week>. How bow dah?`;
+                const message = `${harvestDelinquent.getName()}, you have not logged 40 hours this week on Harvest. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week>. The :key: to success is doing your timesheets! And cocoa butter!`;
 
                 slack.messageUserByEmail(harvestUserEmail, message, slackUsers, (err) => {
 
@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')}, you ain' do yo timesheeze! So cash me ousside, how bow dah?`;
+            const badMessage = `${reallyBadPeople.join(', ')}, the other day the grass was brown. Now its green cuz I ain't give up. But you did. You ain't use enough cocoa butter! http://giphy.com/gifs/dj-khaled-7bFRgOnu1ofyU`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
