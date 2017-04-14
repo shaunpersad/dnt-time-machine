@@ -26,7 +26,7 @@ function warn(req, res) {
 
             const harvestLink = harvest.getWeeklyUrl();
             const copyLink = req.app.locals.services.appUrl('copy');
-            const message = `Some of you still haven't done your timesheets from last week. THIS MAKES ME ANGRY. I KNOW WHO YOU ARE. I KNOW WHERE YOU LIVE. I KNOW YOUR DEEPEST DARKEST SECRETS AND I WILL USE THEM TO DESTROY YOU. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week.> That is all.`;
+            const message = `DO YOUR TIMESHEETS NOOWWWWWWWWWOOWOWWOWOWOWW!!!1!!one1!eleven1!! <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week.> That is all.`;
 
             slack.messageChannel(message, slack.generalChannel, next);
         }
