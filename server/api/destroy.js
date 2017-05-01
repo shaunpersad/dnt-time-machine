@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')} didn't do their timesheets!`;
+            const badMessage = `${reallyBadPeople.join(', ')} didn't do their timesheets, so they will be left stranded on an island. Not together. On separate islands. Like in an island chain. And the water will be full of vindictive sharks, like in that movie with Serena from Gossip Girl.`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
