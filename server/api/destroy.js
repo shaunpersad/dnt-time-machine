@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')} are morally corrupt and will never emotionally fulfill you, ever. Don't call me "honey". Who gon' check me, boo?`;
+            const badMessage = `${reallyBadPeople.join(', ')} are the type of people who would grind their feet on Eddie Murphy's couch. I hope all the bad things in life happen to you and nobody else but you. No I can't stop yelling! That's just how I talk!`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
