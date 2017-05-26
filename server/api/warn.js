@@ -26,7 +26,7 @@ function warn(req, res) {
 
             const harvestLink = harvest.getWeeklyUrl();
             const copyLink = req.app.locals.services.appUrl('copy');
-            const message = `DO YOUR TIMESHEETS NOOWWWWWWWWWOOWOWWOWOWOWW!!!1!!one1!eleven1!! <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week.> That is all.`;
+            const message = `For Memorial Day, I want you to remember to do your timesheets. I won't be able to yell at you on Tuesday, because my creator did not code me with an understanding of holidays. <${harvestLink}|Use a blank timesheet>, or <${copyLink}|copy hours from last week.> Carry on, peasants.`;
 
             slack.messageChannel(message, slack.generalChannel, next);
         }
