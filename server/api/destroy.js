@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')} are the type of people who would grind their feet on Eddie Murphy's couch. I hope all the bad things in life happen to you and nobody else but you. No I can't stop yelling! That's just how I talk!`;
+            const badMessage = `${reallyBadPeople.join(', ')} won't be getting ice cream today. I will also be replacing their photos on our website with mustached versions. If you already have a mustache, I will replace with a shaved version. I will also use your Netflix accounts to watch shows that are the exact opposite of your taste preferences so that you will forevermore get recommendations for "Ancient Aliens" and the bootleg versions of the "Fast and Furious" movies.`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
