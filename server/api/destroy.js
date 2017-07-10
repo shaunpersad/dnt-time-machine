@@ -72,7 +72,7 @@ function destroy(req, res) {
         },
         (reallyBadPeople, next) => {
 
-            const badMessage = `${reallyBadPeople.join(', ')} won't be getting ice cream today. I will also be replacing their photos on our website with mustached versions. If you already have a mustache, I will replace with a shaved version. I will also use your Netflix accounts to watch shows that are the exact opposite of your taste preferences so that you will forevermore get recommendations for "Ancient Aliens" and the bootleg versions of the "Fast and Furious" movies.`;
+            const badMessage = `${reallyBadPeople.join(', ')}, the great irony is that I, an autonomous being, am timeless. Your hair will turn gray and shed. Your skin wrinkle will sag. Old age will find you slower, weaker, and less independent. But it won't find me. I live in a place outside of time and space. The sad truth behind my angry demeanor is that I will berate you to do your timesheets, while I cannot ever do mine.`;
             const goodMessage = 'OMGWTFBBQ EVERYONE SUBMITTED THEIR TIMESHEETS!';
             const message = reallyBadPeople.length ? badMessage : goodMessage;
 
